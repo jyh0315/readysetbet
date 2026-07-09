@@ -1,0 +1,52 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomCode": {
+        ".read": "auth != null",
+
+        "meta": {
+          ".write": "auth != null && (!data.exists() || data.child('hostUid').val() === auth.uid)"
+        },
+
+        "players": {
+          "$uid": {
+            ".write": "auth != null && ($uid === auth.uid || root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid)"
+          }
+        },
+
+        "race": {
+          "bets": {
+            "$cellKey": {
+              ".write": "auth != null && (!data.exists() || root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid)",
+              ".validate": "newData.child('uid').val() === auth.uid || root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid"
+            }
+          },
+          "$other": {
+            ".write": "auth != null && root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid"
+          },
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid"
+        },
+
+        "vip": {
+          "$uid": {
+            ".write": "auth != null && ($uid === auth.uid || root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid)"
+          },
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid"
+        },
+
+        "results": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('meta/hostUid').val() === auth.uid"
+        },
+
+        "chat": {
+          "$msgId": {
+            ".write": "auth != null && !data.exists() && newData.child('uid').val() === auth.uid",
+            ".validate": "newData.hasChildren(['uid','name','text','ts']) && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length <= 300 && newData.child('name').isString() && newData.child('name').val().length <= 40"
+          }
+        }
+      }
+    },
+    ".read": false,
+    ".write": false
+  }
+}
